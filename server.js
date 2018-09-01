@@ -56,6 +56,11 @@ app.get('/', (req, res) => {
 	console.log(__dirname);
 })
 
+app.get('/login', (req, res) => {
+	console.log('On login');
+	res.sendFile(__dirname + '/login.html');
+})
+
 app.post('/quotes', (req, res) => {
 	console.log('On posts page');
 	console.log(req.body)
