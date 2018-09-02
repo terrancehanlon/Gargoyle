@@ -50,6 +50,10 @@ app.get('/login', (req, res) => {
 	res.sendFile(__dirname + '/login.html');
 })
 
+app.get('/playback', (req, res) => {
+	res.sendFile(__dirname + '/views/playback_sdk.html');
+})
+
 app.get('/spotify-auth', (req, res) => {
 	var scope = 'user-read-private user-read-email';
 	res.redirect('https://accounts.spotify.com/authorize?' +
