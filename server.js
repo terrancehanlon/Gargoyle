@@ -1,13 +1,17 @@
 const express = require('express');
-const bodyParser= require('body-parser');
-var request = require('request'); 
-const { conjureState } = require('./secret_tools.js');
-require('dotenv').load();
 const app = express();
-var querystring = require('querystring');
+const bodyParser= require('body-parser');
+const request = require('request'); 
+const ejs = require('ejs');
+const { conjureState } = require('./secret_tools.js');
+const querystring = require('querystring');
+
+require('dotenv').load();
 
 app.use(bodyParser.urlencoded({extended: true}))
+app.set('view engine', 'ejs');
 
+var userInfo;
 
 
 var mysql = require('mysql')
@@ -61,7 +65,9 @@ app.get('/spotify-auth', (req, res) => {
 
 app.get('/userpage', function(req, res) {
 	console.log('user page');
-	res.sendFile(__dirname + '/userpage.html');
+	console.log(userInfo);
+	
+	res.render('userpage', {displayName: 'Terrance'});
 })
 
 app.get('/callback', function(req, res) {
@@ -101,6 +107,7 @@ app.get('/callback', function(req, res) {
 	  };
   
 	  request.post(authOptions, function(error, response, body) {
+	
 		if (!error && response.statusCode === 200) {
   
 		  var access_token = body.access_token,
@@ -115,17 +122,28 @@ app.get('/callback', function(req, res) {
 		  // use the access token to access the Spotify Web API
 		  request.get(options, function(error, response, body) {
 			console.log('body: ' + body);
-			console.log('response: ' + response);
-		  });
+			console.log(JSON.stringify(response));
+			console.log('********');
 
-		  console.log('token: ' + access_token);
-  
-		  // we can also pass the token to the browser to make requests from there
+
+		  });
+		  setTimeout(() => {
+			userInfo = JSON.stringify(response);  
+			console.log('info: ' + userInfo);
+
+		  // pass token as query parameter 
 		  res.redirect('/userpage?' +
 			querystring.stringify({
 			  access_token: access_token,
 			  refresh_token: refresh_token
-			}));
+			}));	
+			  
+		}, 1500);
+		  console.log('token: ' + access_token);
+		  console.log('info after time ' + userInfo);
+
+
+  
 		} else {
 		  res.redirect('/#' +
 			querystring.stringify({
@@ -147,3 +165,7 @@ app.get('/posts', (req, res) => {
 })
 console.log('Hello World');
 
+function accountInfo()
+{
+
+}
