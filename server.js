@@ -66,6 +66,13 @@ app.get('/spotify-auth', (req, res) => {
 app.get('/userpage', function(req, res) {
 	console.log('user page');
 	console.log(userInfo);
+	console.log('*******');
+	userInfo = JSON.parse(userInfo);
+	console.log(typeof userInfo);
+	console.log(userInfo);
+
+	console.log(userInfo['body']['access_token']);
+
 	
 	res.render('userpage', {displayName: 'Terrance'});
 })
