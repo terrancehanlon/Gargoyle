@@ -40,18 +40,15 @@ app.listen(3000, function(){
 
 
 app.get('/', (req, res) => {
-	console.log('On home page');
 	res.sendFile(__dirname + '/index.html');
 	console.log(__dirname);
 })
 
 app.get('/login', (req, res) => {
-	console.log('On login');
 	res.sendFile(__dirname + '/login.html');
 })
 
 app.get('/spotify-auth', (req, res) => {
-	console.log('in spotify auth');	
 	var scope = 'user-read-private user-read-email';
 	res.redirect('https://accounts.spotify.com/authorize?' +
 	  querystring.stringify({
@@ -64,28 +61,17 @@ app.get('/spotify-auth', (req, res) => {
 })
 
 app.get('/userpage', function(req, res) {
-	console.log('user page');
-	console.log(userInfo);
-	console.log('*******');
+	console.log('64: ' + userInfo);
 	userInfo = JSON.parse(userInfo);
-	console.log(typeof userInfo);
 	console.log(userInfo);
-
-	console.log(userInfo['body']['access_token']);
-
-	
-	res.render('userpage', {displayName: 'Terrance'});
+	res.render('userpage', {displayName: userInfo['display_name']});
 })
 
 app.get('/callback', function(req, res) {
 
 	// your application requests refresh and access tokens
 	// after checking the state parameter
-  console.log('in callback');
 
-	console.log('code: ' + req.query.code);
-	console.log('state: ' + req.query.state);
-	console.log('cookies: ' + req.cookies);
 	var code = req.query.code || null;
 	var state = req.query.state || null;
 	var storedState = req.cookies ? req.cookies[stateKey] : null;
@@ -128,29 +114,21 @@ app.get('/callback', function(req, res) {
   
 		  // use the access token to access the Spotify Web API
 		  request.get(options, function(error, response, body) {
-			console.log('body: ' + body);
-			console.log(JSON.stringify(response));
-			console.log('********');
-
-
+			userInfo = JSON.stringify(body);
+			console.log(userInfo);
 		  });
+		  
 		  setTimeout(() => {
-			userInfo = JSON.stringify(response);  
-			console.log('info: ' + userInfo);
-
-		  // pass token as query parameter 
-		  res.redirect('/userpage?' +
-			querystring.stringify({
-			  access_token: access_token,
-			  refresh_token: refresh_token
+			// pass token as query parameter 
+			console.log(userInfo);
+			res.redirect('/userpage?' +
+				querystring.stringify({
+				  access_token: access_token,
+				  refresh_token: refresh_token
 			}));	
+		  }, 1500);
 			  
-		}, 1500);
-		  console.log('token: ' + access_token);
-		  console.log('info after time ' + userInfo);
 
-
-  
 		} else {
 		  res.redirect('/#' +
 			querystring.stringify({
@@ -162,17 +140,12 @@ app.get('/callback', function(req, res) {
   });	
 
 app.post('/quotes', (req, res) => {
-	console.log('On posts page');
-	console.log(req.body)
+
 	res.send('ON POSTS');
 })
 
 app.get('/posts', (req, res) => {
 	res.send('on posts');
 })
-console.log('Hello World');
 
-function accountInfo()
-{
 
-}
