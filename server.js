@@ -12,6 +12,8 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine', 'ejs');
 
 var userInfo;
+var tokenInfo;
+
 
 
 var mysql = require('mysql')
@@ -64,7 +66,10 @@ app.get('/userpage', function(req, res) {
 	console.log('64: ' + userInfo);
 	userInfo = JSON.parse(userInfo);
 	console.log(userInfo);
-	res.render('userpage', {displayName: userInfo['display_name']});
+	res.render('userpage', {
+		displayName: userInfo['display_name'],
+		accessToken: tokenInfo['access_token']
+	});
 })
 
 app.get('/callback', function(req, res) {
@@ -105,6 +110,8 @@ app.get('/callback', function(req, res) {
   
 		  var access_token = body.access_token,
 			  refresh_token = body.refresh_token;
+		
+			  tokenInfo = {access_token: access_token};
   
 		  var options = {
 			url: 'https://api.spotify.com/v1/me',
@@ -115,12 +122,16 @@ app.get('/callback', function(req, res) {
 		  // use the access token to access the Spotify Web API
 		  request.get(options, function(error, response, body) {
 			userInfo = JSON.stringify(body);
+			console.log(response);
 			console.log(userInfo);
 		  });
 		  
 		  setTimeout(() => {
 			// pass token as query parameter 
+			console.log('124: ' + JSON.stringify(response));
+			console.log('125: ' + JSON.stringify(body));
 			console.log(userInfo);
+			
 			res.redirect('/userpage?' +
 				querystring.stringify({
 				  access_token: access_token,
