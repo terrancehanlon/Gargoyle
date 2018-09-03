@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const https = require('https');
+
+const path = require('path');
 const bodyParser= require('body-parser');
 const request = require('request'); 
 const ejs = require('ejs');
@@ -13,6 +16,8 @@ app.set('view engine', 'ejs');
 
 var userInfo;
 var tokenInfo;
+
+app.use(express.static(path.join(__dirname, 'client/public')));
 
 
 
@@ -32,7 +37,7 @@ connection.query('SELECT * FROM users', function (err, rows, fields) {
   console.log(rows);
 })
 
-connection.end()
+connection.end();
 
 app.listen(3000, function(){
 	console.log(process.env.DATABASENAME);
@@ -49,13 +54,64 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
 	res.sendFile(__dirname + '/login.html');
 })
+function getMyCurrentPlayingTrack(options, callback) {
+	return WebApiRequest.builder(tokenInfo['access_token'])
+		.withPath('/v1/me/player/currently-playing')
+		.withQueryParameters(options)
+		.build()
+		.execute(HttpManager.get, callback);
+}
 
 app.get('/playback', (req, res) => {
-	res.sendFile(__dirname + '/views/playback_sdk.html');
+	console.log('57: ' + userInfo);
+	/**
+	 * playBackInfo{ 
+	 * 		currentSongInfo: {
+	 * 		
+	 * }
+	 * }
+	 */
+	var scope = 'user-read-currently-playing';
+	var playBackInfo = {
+		currentSongInfo: {
+			name: null
+		}
+	};
+	
+  var options = {
+		url: 'https://api.spotify.com/v1/me/player/currently-playing',
+		headers: { 'Authorization': 'Bearer ' + tokenInfo['access_token'] },
+		json: true
+		};
+		request.get(options, function(error, response, body) {
+			userInfo = JSON.stringify(body);
+
+			playBackInfo['currentSongInfo']['name'] = response['body']['item']['name'];
+			console.log(playBackInfo);
+			console.log(response['body']['item']['name']);
+
+			// console.log('get current song: ' + (JSON.stringify(response, null, 4)));
+			// console.log('get current song: '+ (JSON.stringify(body, null, 4)));
+
+		  });
+	setTimeout(() => {
+		res.render('playback_sdk', {
+			access_token: tokenInfo['access_token'],
+			playBackInfo: playBackInfo
+		})
+	}, 1000);	  
+
+
+})
+
+app.get('/react', (req, res) => {
+	console.log('in react');
+	// res.sendFile(__dirname + '/front-end/client/public/index.html');
+	res.sendFile(path.join(__dirname+'/front-end/client/public/index.html'));
 })
 
 app.get('/spotify-auth', (req, res) => {
-	var scope = 'user-read-private user-read-email';
+	var scope = 'user-read-private user-read-email user-read-currently-playing';
 	res.redirect('https://accounts.spotify.com/authorize?' +
 	  querystring.stringify({
 		response_type: 'code',
@@ -69,10 +125,14 @@ app.get('/spotify-auth', (req, res) => {
 app.get('/userpage', function(req, res) {
 	console.log('64: ' + userInfo);
 	userInfo = JSON.parse(userInfo);
+	console.log('bla: ' + JSON.stringify(userInfo['followers']));
+	console.log('bla: ' + JSON.stringify(userInfo['images']));
+	console.log('bla: ' + JSON.stringify(userInfo['images']['url']));
 	console.log(userInfo);
 	res.render('userpage', {
 		displayName: userInfo['display_name'],
-		accessToken: tokenInfo['access_token']
+		accessToken: tokenInfo['access_token'],
+		profilePictureLink: userInfo['images'][0]['url']
 	});
 })
 

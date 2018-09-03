@@ -1,14 +1,22 @@
 <h1> PLAY BACK </h1>
 
+<h1>Current song: <%= JSON.stringify(playBackInfo['currentSongInfo']['name']) %></h1>
+
 <!--Script link -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
-
+<button onclick="log()">Cli</button>
 <script>
+
+  function log()
+  {
+    console.log("<%= access_token %>");
+  
+  }
 
     var token;
     var player;
     window.onSpotifyWebPlaybackSDKReady = () => {
-      token = 'env token here';
+      token = '<%= access_token %>';
       player = new Spotify.Player({
   name: 'Web Playback SDK Quick Start Player',
   getOAuthToken: cb => { cb(token); }

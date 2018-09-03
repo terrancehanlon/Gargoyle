@@ -17,8 +17,33 @@
   </head>
 
   <body>
+
     <h1> Hello <%= displayName %></h1>
-    <h3>Access token: <%= accessToken %> </h3>
+    <img style="height: 50px" src="<%= profilePictureLink%>" title="<%= profilePictureLink%>">
+
+    <h3>Access token:  </h3>
+    <div style="width: 900px; overflow-y: auto" id="token_text">
+        <%= accessToken %>
+    </div>
+    <button onclick="selectText()">Select all</button>
+    <script>
+      function selectText()
+      {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.getElementById('token_text'));
+            range.select();
+            console.log('if');
+        } else if (window.getSelection) {
+          console.log('else if');
+
+            var range = document.createRange();
+            range.selectNode(document.getElementById('token_text'));
+            window.getSelection().empty();
+            window.getSelection().addRange(range);
+        }
+      }
+    </script>
   </body>
 </html>
 
