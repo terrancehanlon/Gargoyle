@@ -21,23 +21,23 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 
 
 
-var mysql = require('mysql')
-var connection = mysql.createConnection({
-  host     : process.env.DATABASE_HOST,
-  user     : process.env.DATABASE_USER,
-  password : process.env.DATABASE_PASSWORD,
-  database : process.env.DATABASE_NAME
-});
+// var mysql = require('mysql')
+// var connection = mysql.createConnection({
+//   host     : process.env.DATABASE_HOST,
+//   user     : process.env.DATABASE_USER,
+//   password : process.env.DATABASE_PASSWORD,
+//   database : process.env.DATABASE_NAME
+// });
 
-connection.connect()
+// connection.connect()
 
-connection.query('SELECT * FROM users', function (err, rows, fields) {
-  if (err) throw err
+// connection.query('SELECT * FROM users', function (err, rows, fields) {
+//   if (err) throw err
 
-  console.log(rows);
-})
+//   console.log(rows);
+// })
 
-connection.end();
+// connection.end();
 
 app.listen(3000, function(){
 	console.log(process.env.DATABASENAME);
