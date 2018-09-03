@@ -9,6 +9,8 @@ const ejs = require('ejs');
 const { conjureState } = require('./secret_tools.js');
 const querystring = require('querystring');
 
+
+const PORT = process.env.PORT;
 require('dotenv').load();
 
 app.use(bodyParser.urlencoded({extended: true}))
@@ -39,7 +41,7 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 
 // connection.end();
 
-app.listen(3000, function(){
+app.listen(PORT, function(){
 	console.log(process.env.DATABASENAME);
 
 	console.log('server on');
