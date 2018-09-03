@@ -54,13 +54,7 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
 	res.sendFile(__dirname + '/login.html');
 })
-function getMyCurrentPlayingTrack(options, callback) {
-	return WebApiRequest.builder(tokenInfo['access_token'])
-		.withPath('/v1/me/player/currently-playing')
-		.withQueryParameters(options)
-		.build()
-		.execute(HttpManager.get, callback);
-}
+
 
 app.get('/playback', (req, res) => {
 	console.log('57: ' + userInfo);
