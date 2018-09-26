@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
     "start": "npm run build --prefix ./frontend && node server.js",
-    "postinstall": "npm run build --aot --prod --prefix ./frontend"
+    "postinstall": "npm run postinstall --prefix ./frontend"
   },
   "author": "",
   "license": "ISC",
