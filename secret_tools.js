@@ -1,3 +1,4 @@
+const https = require('https');
 module.exports = {
     conjureState: function(length){
         var text = '';

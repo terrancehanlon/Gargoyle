@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const https = require('https');
 
+var io = require('socket.io')(process.env.PORT || 8000);
+
 const path = require('path');
 const bodyParser= require('body-parser');
 const request = require('request'); 
@@ -10,7 +12,7 @@ const { conjureState } = require('./secret_tools.js');
 const querystring = require('querystring');
 
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 require('dotenv').load();
 
 app.use(bodyParser.urlencoded({extended: true}))
@@ -47,17 +49,37 @@ app.listen(PORT, function(){
 	console.log('server on');
 });
 
+app.use(express.static('./frontend/dist/frontend'));
 
-app.get('/', (req, res) => {
+app.get('/main', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 	console.log(__dirname);
 })
+
+app.get('/frontend', function(req, res) {
+	console.log(__dirname);
+	res.sendFile(__dirname + '/frontend/dist/frontend/index.html');
+})
+
+
+
 
 app.get('/login', (req, res) => {
 	res.sendFile(__dirname + '/login.html');
 })
 
+ io.on('connect', function(socket){
+	console.log('connected');
+	socket.on('disconnect', function(){
+		console.log('disconnect');
+	})
+})
 
+io.on('connection', function(socket){
+  socket.on('chat message', function(msg){
+    console.log('message: ' + msg);
+  });
+});
 app.get('/playback', (req, res) => {
 	console.log('57: ' + userInfo);
 	/**
@@ -81,23 +103,43 @@ app.get('/playback', (req, res) => {
 		};
 		request.get(options, function(error, response, body) {
 			userInfo = JSON.stringify(body);
-
-			playBackInfo['currentSongInfo']['name'] = response['body']['item']['name'];
-			console.log(playBackInfo);
-			console.log(response['body']['item']['name']);
-
-			// console.log('get current song: ' + (JSON.stringify(response, null, 4)));
-			// console.log('get current song: '+ (JSON.stringify(body, null, 4)));
-
-		  });
+			console.log('curent: '+ JSON.stringify(response, null, 4));
+			if(response['statusCode'] === 200)
+			{
+				playBackInfo['currentSongInfo']['name'] = response['body']['item']['name'];
+			}
+			else{
+				playBackInfo['currentSongInfo']['name'] = 'NO SONG PLAYING';
+			}
+	
+			});
+			io.on('connection', function (socket) { // Notify for a new connection and pass the socket as parameter.
+				console.log('new connection');
+				setInterval(function () {
+					console.log('in interval');
+					request.get(options, function(error, response, body) {
+						userInfo = JSON.stringify(body);
+						console.log('curent: '+ JSON.stringify(response, null, 4));
+						if(response['statusCode'] === 200)
+						{
+							playBackInfo['currentSongInfo']['name'] = response['body']['item']['name'];
+						}
+						else{
+							playBackInfo['currentSongInfo']['name'] = 'NO SONG PLAYING';
+						}
+						io.emit('update-value', [playBackInfo]);
+						socket.emit('update-value', playBackInfo); // Emit on the opened socket.
+						})
+				}, 1000);
+		
+		});
 	setTimeout(() => {
+		console.log(playBackInfo);
 		res.render('playback_sdk', {
 			access_token: tokenInfo['access_token'],
 			playBackInfo: playBackInfo
-		})
-	}, 1000);	  
-
-
+		});
+}, 1500)
 })
 
 app.get('/react', (req, res) => {
@@ -107,7 +149,7 @@ app.get('/react', (req, res) => {
 })
 
 app.get('/spotify-auth', (req, res) => {
-	var scope = 'user-read-private user-read-email user-read-currently-playing';
+	var scope = 'user-read-private user-read-email user-read-currently-playing user-modify-playback-state user-read-playback-state';
 	res.redirect('https://accounts.spotify.com/authorize?' +
 	  querystring.stringify({
 		response_type: 'code',
@@ -218,5 +260,3 @@ app.post('/quotes', (req, res) => {
 app.get('/posts', (req, res) => {
 	res.send('on posts');
 })
-
-

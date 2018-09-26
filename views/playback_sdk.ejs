@@ -1,59 +1,78 @@
 <h1> PLAY BACK </h1>
 
-<h1>Current song: <%= JSON.stringify(playBackInfo['currentSongInfo']['name']) %></h1>
+<h1 id="currentSong">Current song: <%= JSON.stringify(playBackInfo['currentSongInfo']['name']) %></h1>
 
 <!--Script link -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
-<button onclick="log()">Cli</button>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<button onclick="next()">Cli</button>
+<%= access_token %>
+<!-- <script src="/node_modules/socket.io/lib/socket.js"></script> -->
 <script>
 
-  function log()
-  {
-    console.log("<%= access_token %>");
+
+  // var socket = io('http://localhost:3000/playback');
+  // socket.on('update-value', function(value){
+  //   console.log('new val: ' + value);
+  //   document.getElementById('currentSong').innerHTML = value;
+      
+  // })
+
+   $(function () {
+    var socket = io();
+    $('form').submit(function(){
+      socket.emit('chat message', $('#m').val());
+      $('#m').val('');
+      return false;
+    });
+  });
+
   
-  }
+  var token;
+      var player;
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        token = ('<%= access_token %>').toString();
+        player = new Spotify.Player({
+    name: 'Playback Local',
+    getOAuthToken: cb => { cb(token); }
+  }); }
 
-    var token;
-    var player;
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      token = '<%= access_token %>';
-      player = new Spotify.Player({
-  name: 'Web Playback SDK Quick Start Player',
-  getOAuthToken: cb => { cb(token); }
-});
 
-// Error handling
-player.addListener('initialization_error', ({ message }) => { console.error(message); });
-player.addListener('authentication_error', ({ message }) => { console.error(message); });
-player.addListener('account_error', ({ message }) => { console.error(message); });
-player.addListener('playback_error', ({ message }) => { console.error(message); });
+  // Error handling
+  player.addListener('initialization_error', ({ message }) => { console.error(message); });
+  player.addListener('authentication_error', ({ message }) => { console.error(message); });
+  player.addListener('account_error', ({ message }) => { console.error(message); });
+  player.addListener('playback_error', ({ message }) => { console.error(message); });
 
-// Playback status updates
-player.addListener('player_state_changed', state => { console.log(state); });
+  // Playback status updates
+  player.addListener('player_state_changed', state => { console.log(state); });
 
-// Ready
-player.addListener('ready', ({ device_id }) => {
-  console.log('Ready with Device ID', device_id);
-});
+  // Ready
+  player.addListener('ready', ({ device_id }) => {
+    console.log('Ready with Device ID', device_id);
+  });
 
-// Not Ready
-player.addListener('not_ready', ({ device_id }) => {
-  console.log('Device ID has gone offline', device_id);
-});
+  // Not Ready
+  player.addListener('not_ready', ({ device_id }) => {
+    console.log('Device ID has gone offline', device_id);
+  });
 
-// Connect to the player!
-player.connect();
-};
+  // Connect to the player!
+  player.connect();
+
+
 
 function pause()
 {
-  player.togglePlay().then(() => {
-console.log('Toggled playback!');
-});
+  player.pause().then(() => {
+    console.log('paused');
+  })
 }
 
 function next()
 {
+  console.log(player);
   player.nextTrack().then(() => {
 console.log('Skipped to next track!');
 });

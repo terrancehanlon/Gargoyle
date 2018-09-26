@@ -1,7 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <title>Gargoyle</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+      <title>Gargoyle</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
       #login, #loggedin {
@@ -17,8 +21,25 @@
   </head>
 
   <body>
-    <h1>Get started by logging into spotify</h1>
-    <a href="/spotify-auth" class="btn btn-primary">Log in with Spotify</a>
+      <div class="jumbotron">
+          <h1 class="display-4">Gargoyle</h1>
+          <br>
+          <p class="lead">Web App that uses Spotify API</p>
+          <ul>
+            <li>Web play back SDK</li>
+            <ul>
+              <li> Party Queue System</li>
+              <li> Create playlists </li>
+            </ul>
+            <li>
+              Demo of Spotify API calls
+            </li>
+          </ul>
+          <hr class="my-4">
+          <h3 class="display-6">Get started by logging into spotify</h3>
+          <a href="/spotify-auth" class="btn btn-primary">Log in with Spotify</a>
+        </div>
+
     <div id="like_button_container">
 
     </div>

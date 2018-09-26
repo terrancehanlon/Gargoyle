@@ -17,15 +17,14 @@
   </head>
 
   <body>
-
+    <img  src="<%= profilePictureLink%>" title="<%= profilePictureLink%>">
     <h1> Hello <%= displayName %></h1>
-    <img style="height: 50px" src="<%= profilePictureLink%>" title="<%= profilePictureLink%>">
-
     <h3>Access token:  </h3>
     <div style="width: 900px; overflow-y: auto" id="token_text">
         <%= accessToken %>
     </div>
     <button onclick="selectText()">Select all</button>
+    <a href="/playback" class="btn btn-primary">Playback SDK</a>
     <script>
       function selectText()
       {
