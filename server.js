@@ -56,7 +56,7 @@ app.get('/main', (req, res) => {
 	console.log(__dirname);
 })
 
-app.get('/frontend', function(req, res) {
+app.get('/', function(req, res) {
 	console.log(__dirname);
 	res.sendFile(__dirname + '/frontend/dist/frontend/index.html');
 })
