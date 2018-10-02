@@ -62,7 +62,7 @@ app.get('/frontend', function(req, res) {
 })
 
 app.get('/', (req, res) => {
-	res.sendFile(__dirname + './index.html');
+	res.sendFile(__dirname + '/index.html');
 })
 
 
