@@ -43,11 +43,7 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 
 // connection.end();
 
-app.listen( process.env.PORT || 3000, function(){
-	console.log(process.env.DATABASENAME);
-	console.log(process.env.PORT);
-	console.log('server on');
-});
+app.listen( process.env.PORT || 3000);
 
 app.use(express.static('./frontend/dist/frontend'));
 
