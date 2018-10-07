@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const https = require('https');
 
+var fs = require('fs');
+
 var io = require('socket.io')(process.env.PORT || 8000);
 
 const path = require('path');
@@ -35,21 +37,23 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 
 // connection.connect()
 
-// connection.query('SELECT * FROM users', function (err, rows, fields) {
+// connection.query('SELECT * FROM user', function (err, rows, fields) {
 //   if (err) throw err
 
 //   console.log(rows);
 // })
 
+
 // connection.end();
 
-app.listen( process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000);
 
 app.use(express.static('./frontend/dist/frontend'));
 
 app.get('/main', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 	console.log(__dirname);
+	console.log(aws);
 })
 
 app.get('/frontend', function(req, res) {
@@ -60,6 +64,9 @@ app.get('/frontend', function(req, res) {
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 })
+
+
+
 
 
 
@@ -159,7 +166,41 @@ app.get('/spotify-auth', (req, res) => {
 		state: conjureState(16)
 	  }));
 })
+app.get('/playlists', (req, res) => {
+	 console.log(tokenInfo);
+	 let count;
+	 let playlists = {};
+	 var options = {
+		url: 'https://api.spotify.com/v1/me/playlists',
+		headers: { 'Authorization': 'Bearer ' + tokenInfo['access_token'] },
+		json: true
+		};
+		request.get(options, function(error, response, body){
+			console.log(JSON.stringify(response, null, 4));
+			console.log('******************************************-----------------------*************************************');
+			console.log('******************************************-----------------------*************************************');
+			console.log('******************************************-----------------------*************************************');
+			console.log('Play lists :');
+			console.log('============================================================================================================');
+			let names = [];
+			for(let item of body['items'])
+			{
+				console.log(item['name']);
+				names.push(item['name']);
+			}
+			playlists['names'] = names;	
+			// console.log(JSON.stringify(body, null, 4));
+			
+			 count = body['total'];
+			console.log(count);
+		})
 
+		setTimeout(() => {
+			res.render('playlists', {
+				playListInfo: {count: count, names: playlists['names']}
+			})
+		}, 1000)
+})
 app.get('/userpage', function(req, res) {
 	console.log('64: ' + userInfo);
 	userInfo = JSON.parse(userInfo);
