@@ -22,22 +22,23 @@ app.set('view engine', 'ejs');
 
 var userInfo;
 var tokenInfo;
+var playlists = [];
 
 app.use(express.static(path.join(__dirname, 'client/public')));
 
 
 
-// var mysql = require('mysql')
-// var connection = mysql.createConnection({
-//   host     : process.env.DATABASE_HOST,
-//   user     : process.env.DATABASE_USER,
-//   password : process.env.DATABASE_PASSWORD,
-//   database : process.env.DATABASE_NAME
-// });
+var mysql = require('mysql')
+var connection = mysql.createConnection({
+  host     : process.env.DATABASE_HOST,
+  user     : process.env.DATABASE_USER,
+  password : process.env.DATABASE_PASSWORD,
+  database : process.env.DATABASE_NAME
+});
 
-// connection.connect()
+connection.connect()
 
-// connection.query('SELECT * FROM user', function (err, rows, fields) {
+// connection.query('SELECT * FROM playlist', function (err, rows, fields) {
 //   if (err) throw err
 
 //   console.log(rows);
@@ -61,11 +62,22 @@ app.get('/frontend', function(req, res) {
 	res.sendFile(__dirname + '/frontend/dist/frontend/index.html');
 })
 
+app.get('/global', function(req, res) {
+	res.sendFile( __dirname + '/frontend/dist/frontend/index.html');
+})
+
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 })
 
 
+app.get('/all', (req, res) => {
+	connection.query('SELECT * FROM playlist', function (err, rows, fields) {
+		if (err) throw err
+	
+		console.log(rows);
+	})
+})
 
 
 
@@ -157,6 +169,7 @@ app.get('/react', (req, res) => {
 
 app.get('/spotify-auth', (req, res) => {
 	var scope = 'user-read-private user-read-email user-read-currently-playing user-modify-playback-state user-read-playback-state';
+	console.log("HERE2");
 	res.redirect('https://accounts.spotify.com/authorize?' +
 	  querystring.stringify({
 		response_type: 'code',
@@ -164,12 +177,12 @@ app.get('/spotify-auth', (req, res) => {
 		scope: scope,
 		redirect_uri: process.env.APP_REDIRECT_URL,
 		state: conjureState(16)
-	  }));
+	  }));2
 })
 app.get('/playlists', (req, res) => {
 	 console.log(tokenInfo);
 	 let count;
-	 let playlists = {};
+	 
 	 var options = {
 		url: 'https://api.spotify.com/v1/me/playlists',
 		headers: { 'Authorization': 'Bearer ' + tokenInfo['access_token'] },
@@ -182,11 +195,21 @@ app.get('/playlists', (req, res) => {
 			console.log('******************************************-----------------------*************************************');
 			console.log('Play lists :');
 			console.log('============================================================================================================');
+			let  = [];
 			let names = [];
 			for(let item of body['items'])
 			{
-				console.log(item['name']);
-				names.push(item['name']);
+				if(item['images'].length == 1){
+					console.log(item['id']);
+					let playList_obj = {
+						"name": item['name'],
+						"image": item['images'][0]['url'],
+						"id": item['id']
+					}
+					names.push(playList_obj);
+					
+				}
+
 			}
 			playlists['names'] = names;	
 			// console.log(JSON.stringify(body, null, 4));
@@ -196,9 +219,11 @@ app.get('/playlists', (req, res) => {
 		})
 
 		setTimeout(() => {
-			res.render('playlists', {
-				playListInfo: {count: count, names: playlists['names']}
-			})
+			console.log(playlists);
+			return playlists;
+			// res.render('playlists', {
+			// 	playListInfo: {count: count, names: playlists['names']}
+			// })
 		}, 1000)
 })
 app.get('/userpage', function(req, res) {
@@ -293,11 +318,29 @@ app.get('/callback', function(req, res) {
 	}
   });	
 
-app.post('/quotes', (req, res) => {
+app.get('/all', (req, res) => {
+	let count = 0;
+	// connection.query('SELECT * FROM playlist', function (err, rows, fields) {
+	// 	if (err) throw err;
+	// 	count++;
+	// 	console.log(rows);
+	// 	console.log(count);
+	// })
+	console.log(playlists);
+	console.log('test here');
+	res.send("test test");
+})
 
-	res.send('ON POSTS');
+app.post('/add', (req, res) => {
+	console.log('on add');
+	console.log(req);
+
 })
 
 app.get('/posts', (req, res) => {
 	res.send('on posts');
+})
+
+app.get('*', (req, res) => {
+	res.send("error", 404);
 })

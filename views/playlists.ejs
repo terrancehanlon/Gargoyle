@@ -1,10 +1,48 @@
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
 <h1>Play lists</h1>
 
-You have <%= playListInfo['count'] %> Playylists
+You have <%= playListInfo['count'] %> Playlists
 
 <br/>
-<% for(var i = 0; i < playListInfo['names'].length; i++) { %>
-        <%= playListInfo['names'][i] %> <br/>
-<%}%>
+<table style="width:50%">
 
+<% for(var i = 0; i < playListInfo['names'].length; i++) { %>
+        <tr>
+                <td> 
+                        <img src="<%= playListInfo['names'][i]['image'] %>" style="width: 300px" alt="image link">
+                </td> 
+                <td> 
+                        <h3 id="name" style="color: blue"><%= playListInfo['names'][i]['name'] %> </h3>
+                </td>
+                <td>
+                <button onclick="log('<%= playListInfo['names'][i]['id']%>')"> log </button>
+                </td>
+        </tr>
+<%
+}
+%>
+
+</table>
+<script>
+        function log(id){
+                var xhr = new XMLHttpRequest();
+             var url = "http://localhost:3000/add";
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                        value: id
+                }));
+                console.log('est');
+             console.log(id);  
+        //      var returnUrl = "localhost:3000/playlists";
+        //      var form = $(
+        //      '<form action="localhost:3000/add" method="spost">' +
+        //      '<input type="text" value="test" />"' + "</form>" );
+        //      $('body').append(form);
+        //      form.submit();
+        }
+
+</script>
 

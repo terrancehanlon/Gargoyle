@@ -20,13 +20,19 @@
     <img  src="<%= profilePictureLink%>" title="<%= profilePictureLink%>">
     <h1> Hello <%= displayName %></h1>
     <h3>Access token:  </h3>
-    <div style="width: 900px; overflow-y: auto" id="token_text">
+    <div style="width: 900px; overflow-y: auto" id="token_text" hidden="true"2>
         <%= accessToken %>
     </div>
-    <button onclick="selectText()">Select all</button>
+    <button onclick="selectText()" hidden="false">Select all</button>
     <a href="/playback" class="btn btn-primary">Playback SDK</a>
     <a href="/playlists" class="btn btn-primary">Play Lists</a>
+    <a href="/global" class="btn btn-primary"> Front end </a>
+
     <script>
+      function displayToken(){
+        var ele = document.getElementById('token_text');
+        ele.hidden = false;
+      }
       function selectText()
       {
         if (document.selection) {
@@ -43,6 +49,7 @@
             window.getSelection().addRange(range);
         }
       }
+
     </script>
   </body>
 </html>
