@@ -28,15 +28,15 @@ app.use(express.static(path.join(__dirname, 'client/public')));
 
 
 
-var mysql = require('mysql')
-var connection = mysql.createConnection({
-  host     : process.env.DATABASE_HOST,
-  user     : process.env.DATABASE_USER,
-  password : process.env.DATABASE_PASSWORD,
-  database : process.env.DATABASE_NAME
-});
+// var mysql = require('mysql')
+// var connection = mysql.createConnection({
+//   host     : process.env.DATABASE_HOST,
+//   user     : process.env.DATABASE_USER,
+//   password : process.env.DATABASE_PASSWORD,
+//   database : process.env.DATABASE_NAME
+// });
 
-connection.connect()
+// connection.connect()
 
 // connection.query('SELECT * FROM playlist', function (err, rows, fields) {
 //   if (err) throw err
@@ -179,6 +179,13 @@ app.get('/spotify-auth', (req, res) => {
 		state: conjureState(16)
 	  }));2
 })
+app.get('/playlist/:playListId', (req, res) => {
+	console.log(req.params);
+	res.render('playlist', {
+			id: req.params['playListId'],
+			accessToken: tokenInfo['accessToken']
+	})
+})
 app.get('/playlists', (req, res) => {
 	 console.log(tokenInfo);
 	 let count;
@@ -220,10 +227,9 @@ app.get('/playlists', (req, res) => {
 
 		setTimeout(() => {
 			console.log(playlists);
-			return playlists;
-			// res.render('playlists', {
-			// 	playListInfo: {count: count, names: playlists['names']}
-			// })
+			res.render('playlists', {
+				playListInfo: {count: count, names: playlists['names']}
+			})
 		}, 1000)
 })
 app.get('/userpage', function(req, res) {

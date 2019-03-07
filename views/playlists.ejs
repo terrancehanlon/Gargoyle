@@ -17,7 +17,7 @@ You have <%= playListInfo['count'] %> Playlists
                         <h3 id="name" style="color: blue"><%= playListInfo['names'][i]['name'] %> </h3>
                 </td>
                 <td>
-                <button onclick="log('<%= playListInfo['names'][i]['id']%>')"> log </button>
+                <a href="/playlist/<%=playListInfo['names'][i]['id'] %>">Edit </a>
                 </td>
         </tr>
 <%
