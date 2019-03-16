@@ -1,6 +1,7 @@
 const Query = require('./queries');
 const express = require('express');
 const app = express();
+const sleep = require('sleep');
 const https = require('https');
 
 var fs = require('fs');
@@ -220,11 +221,30 @@ app.get('/playlists', (req, res) => {
 
 app.get('/userpage', function(req, res) {
 	let userInfo = JSON.parse(req.query.userInfo);
-	console.log(JSON.stringify(userInfo, null, 2));
-	console.log(userInfo['id']);
+	// console.log(JSON.stringify(userInfo, null, 2));
+	// console.log(userInfo['id']);
 	// console.log(userInfo['images']);
 	
-	query.checkIfExists(connection, userInfo['id']);
+	var val = query.checkIfExists(connection, userInfo['id']);
+	console.log('229 ' + val);
+
+	connection.query("SELECT COUNT(id) FROM user where id =" + "\'" + userInfo['id'] + "\'", function(err, rows, fields){
+		if(err) {
+				console.log(err);
+				return err;
+		}
+		console.log(typeof rows[0]['COUNT(id)']);
+		if(parseInt(rows[0]['COUNT(id)']) != 0){
+				console.log('does indeed exist');
+				
+		}else{
+			console.log('creating new user');
+		} });
+
+	// setTimeout(() => {
+
+	// }, 2000 )
+	
 
 	res.render('userpage', {
 		displayName: userInfo['display_name'],
