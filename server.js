@@ -1,3 +1,4 @@
+const Query = require('./queries');
 const express = require('express');
 const app = express();
 const https = require('https');
@@ -13,6 +14,7 @@ const ejs = require('ejs');
 const { conjureState } = require('./secret_tools.js');
 const querystring = require('querystring');
 
+const query = new Query();
 
 // const PORT = process.env.PORT || 3000;
 require('dotenv').load();
@@ -20,42 +22,33 @@ require('dotenv').load();
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine', 'ejs');
 
-var userInfo;
 var tokenInfo;
 var playlists = [];
 
 app.use(express.static(path.join(__dirname, 'client/public')));
+app.use(function(req, res, next){
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, application/json");
+next();
+})
 
 
+var mysql = require('mysql')
+var connection = mysql.createConnection({
+  host     : process.env.DATABASE_HOST,
+  user     : process.env.DATABASE_USER,
+  password : process.env.DATABASE_PASSWORD,
+  database : process.env.DATABASE_NAME
+});
 
-// var mysql = require('mysql')
-// var connection = mysql.createConnection({
-//   host     : process.env.DATABASE_HOST,
-//   user     : process.env.DATABASE_USER,
-//   password : process.env.DATABASE_PASSWORD,
-//   database : process.env.DATABASE_NAME
-// });
+connection.connect()
 
-// connection.connect()
 
-// connection.query('SELECT * FROM playlist', function (err, rows, fields) {
-//   if (err) throw err
-
-//   console.log(rows);
-// })
 
 
 // connection.end();
 
-app.listen(process.env.PORT || 3000);
-
-app.use(express.static('./frontend/dist/frontend'));
-
-app.get('/main', (req, res) => {
-	res.sendFile(__dirname + '/index.html');
-	console.log(__dirname);
-	console.log(aws);
-})
+app.listen(process.env.PORT || 3005);
 
 app.get('/frontend', function(req, res) {
 	console.log(__dirname);
@@ -67,7 +60,8 @@ app.get('/global', function(req, res) {
 })
 
 app.get('/', (req, res) => {
-	res.sendFile(__dirname + '/index.html');
+	// console.log('in root');
+	res.sendFile(__dirname + '/land.html');
 })
 
 
@@ -100,14 +94,7 @@ io.on('connection', function(socket){
   });
 });
 app.get('/playback', (req, res) => {
-	console.log('57: ' + userInfo);
-	/**
-	 * playBackInfo{ 
-	 * 		currentSongInfo: {
-	 * 		
-	 * }
-	 * }
-	 */
+
 	var scope = 'user-read-currently-playing';
 	var playBackInfo = {
 		currentSongInfo: {
@@ -169,7 +156,6 @@ app.get('/react', (req, res) => {
 
 app.get('/spotify-auth', (req, res) => {
 	var scope = 'user-read-private user-read-email user-read-currently-playing user-modify-playback-state user-read-playback-state';
-	console.log("HERE2");
 	res.redirect('https://accounts.spotify.com/authorize?' +
 	  querystring.stringify({
 		response_type: 'code',
@@ -177,7 +163,7 @@ app.get('/spotify-auth', (req, res) => {
 		scope: scope,
 		redirect_uri: process.env.APP_REDIRECT_URL,
 		state: conjureState(16)
-	  }));2
+	  }));
 })
 app.get('/playlist/:playListId', (req, res) => {
 	console.log(req.params);
@@ -186,8 +172,10 @@ app.get('/playlist/:playListId', (req, res) => {
 			accessToken: tokenInfo['accessToken']
 	})
 })
+app.get('/user/:userId', (req, res) => {
+
+})
 app.get('/playlists', (req, res) => {
-	 console.log(tokenInfo);
 	 let count;
 	 
 	 var options = {
@@ -196,12 +184,6 @@ app.get('/playlists', (req, res) => {
 		json: true
 		};
 		request.get(options, function(error, response, body){
-			console.log(JSON.stringify(response, null, 4));
-			console.log('******************************************-----------------------*************************************');
-			console.log('******************************************-----------------------*************************************');
-			console.log('******************************************-----------------------*************************************');
-			console.log('Play lists :');
-			console.log('============================================================================================================');
 			let  = [];
 			let names = [];
 			for(let item of body['items'])
@@ -219,7 +201,7 @@ app.get('/playlists', (req, res) => {
 
 			}
 			playlists['names'] = names;	
-			// console.log(JSON.stringify(body, null, 4));
+			console.log(JSON.stringify(body, null, 4));
 			
 			 count = body['total'];
 			console.log(count);
@@ -230,15 +212,20 @@ app.get('/playlists', (req, res) => {
 			res.render('playlists', {
 				playListInfo: {count: count, names: playlists['names']}
 			})
+			return response;
 		}, 1000)
-})
+});
+
+
+
 app.get('/userpage', function(req, res) {
-	console.log('64: ' + userInfo);
-	userInfo = JSON.parse(userInfo);
-	console.log('bla: ' + JSON.stringify(userInfo['followers']));
-	console.log('bla: ' + JSON.stringify(userInfo['images']));
-	console.log('bla: ' + JSON.stringify(userInfo['images']['url']));
-	console.log(userInfo);
+	let userInfo = JSON.parse(req.query.userInfo);
+	console.log(JSON.stringify(userInfo, null, 2));
+	console.log(userInfo['id']);
+	// console.log(userInfo['images']);
+	
+	query.checkIfExists(connection, userInfo['id']);
+
 	res.render('userpage', {
 		displayName: userInfo['display_name'],
 		accessToken: tokenInfo['access_token'],
@@ -246,7 +233,44 @@ app.get('/userpage', function(req, res) {
 	});
 })
 
+app.get('/featured-list', function(req, res){
+	 // Website you wish to allow to connect
+	 res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+	 // Request methods you wish to allow
+	 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+	 // Request headers you wish to allow
+	 res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+	 // Set to true if you need the website to include cookies in the requests sent
+	 // to the API (e.g. in case you use sessions)
+	 res.setHeader('Access-Control-Allow-Credentials', true);
+	
+	 console.log("in featured list");
+	connection.query("SELECT * FROM user", function(err, rows, fields){
+		if(err) return err;
+
+		console.log('rows: ' + JSON.stringify(rows));
+
+		res.send(JSON.stringify(rows));
+	})
+})
+
+app.get('/create-account', function(req, res){
+	console.log(req.query.username);
+	res.render("login", {
+
+	});
+	// connection.query("INSERT INTO user (id) " + "VALUES(" + "\'" + userInfo['id'] + "\'"  + ')', function(err, rows, fields){
+	// 	if(err) console.log(err);
+
+	// } )
+})
+
+
 app.get('/callback', function(req, res) {
+	var userInfo;
 
 	// your application requests refresh and access tokens
 	// after checking the state parameter
@@ -254,8 +278,6 @@ app.get('/callback', function(req, res) {
 	var code = req.query.code || null;
 	var state = req.query.state || null;
 	var storedState = req.cookies ? req.cookies[stateKey] : null;
-
-	console.log(storedState);
   
 	if (state === null) {
 	  res.redirect('/#' +
@@ -296,18 +318,12 @@ app.get('/callback', function(req, res) {
 		  // use the access token to access the Spotify Web API
 		  request.get(options, function(error, response, body) {
 			userInfo = JSON.stringify(body);
-			console.log(response);
-			console.log(userInfo);
 		  });
 		  
 		  setTimeout(() => {
-			// pass token as query parameter 
-			console.log('124: ' + JSON.stringify(response));
-			console.log('125: ' + JSON.stringify(body));
-			console.log(userInfo);
-			
 			res.redirect('/userpage?' +
 				querystring.stringify({
+					userInfo: userInfo,
 				  access_token: access_token,
 				  refresh_token: refresh_token
 			}));	
@@ -348,5 +364,5 @@ app.get('/posts', (req, res) => {
 })
 
 app.get('*', (req, res) => {
-	res.send("error", 404);
+	res.send("ERROR");
 })

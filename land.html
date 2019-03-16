@@ -1,0 +1,39 @@
+<head>
+    <title>
+        Gargoyle Spotify Playlsit sharing   
+    </title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<div style="margin-top: 25%">
+        <div class="jumbotron">
+            <h1 style="text-align: center; font-size: 3em">
+                Welcome To Gargoyle 
+            </h1>
+          <p style="text-align: center;">
+                Social Spotify playlist sharing platform <br/>
+                <input type="button" id="showBtn" value="Create an account through spotify" onclick="showTextBox()"/>
+                <input type="text" placeholder="Enter a username" id="userNameTb" hidden/>
+                <input type="button" id="submitBtn" value="Submit" onclick="createAccount()" hidden />
+
+                
+          </p>
+        </div>
+</div>
+
+<script>
+    function showTextBox(){
+        let show_ele = document.getElementById("showBtn");
+        show_ele.hidden = true;
+
+        let text_ele = document.getElementById("userNameTb");
+        text_ele.hidden = false;
+
+        let submit_ele = document.getElementById("submitBtn");
+        submit_ele.hidden = false;
+    }
+
+    function createAccount(){
+        window.location.href = "http://localhost:3005/login";
+    }
+
+</script>
